@@ -87,10 +87,16 @@ describe("reactX", () => {
         expect(root.innerHTML).toEqual(`<a href="/">home</a>`)
     })
 
-    class OpenClose extends Component<{ name: string }, { isOpen: boolean }> {
+    class OpenClose extends Component<void, { isOpen: boolean }> {
+        constructor() {
+            super()
+            this.state = { isOpen: false }
+        }
+
         toggle() {
             this.setState({ isOpen: !this.state.isOpen })
         }
+
         render(): HTMLElement {
             return createElement('b', { 'onClick': () => this.toggle() }, this.state.isOpen ? 'open' : 'closed')
         }
@@ -99,8 +105,9 @@ describe("reactX", () => {
     it('binds on props as Events to html tag', () => {
         let evt = document.createEvent("HTMLEvents")
         evt.initEvent("click", false, true)
-        render(createElement(OpenClose), root)
+        render(new OpenClose(), root)
+        expect(root.innerHTML).toMatch(`<b>closed</b>`)
         document.body.querySelector('b').dispatchEvent(evt)
-        expect(root.innerHTML).toEqual(`<b>open</b>`)
+        expect(root.innerHTML).toMatch(`<b>open</b>`)
     })
 })

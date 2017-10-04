@@ -5,7 +5,7 @@ interface Constructable<T, TProps> {
 type StatelessComponent<T> = (props: T) => HTMLElement
 
 interface IClassComponent {
-    render: () => HTMLElement
+    render: () => HTMLElement & { type?: string, kids?: Children }
 }
 
 type NodeElement<TProps> = string | Constructable<IClassComponent, TProps> | StatelessComponent<TProps>

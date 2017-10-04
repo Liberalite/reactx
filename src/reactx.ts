@@ -8,7 +8,8 @@ export class Component<TProps = void, TState = void> implements IClassComponent 
     public state?: TState = {} as any
     render(): HTMLElement { return null }
     setState(state: TState) {
-        this.state = { ...(this.state as any), state }
+        this.state = { ...(this.state as any), ...(state as any) }
+        refresh()
     }
 }
 
@@ -39,10 +40,16 @@ function createTagElement<T>(tag: string, props: T, children: Children) {
     appendProps(domElement, props)
     return domElement
 }
-
+const REACT_CLASS = "reactClass"
+function renderClass<T>(e: Constructable<IClassComponent, T>, props: T, ...children: Children) {
+    const el = new e(props).render()
+    el.kids = children
+    el.type = REACT_CLASS
+    return el
+}
 export function createElement<T>(e: NodeElement<T>, props: T = null, ...children: Children): HTMLElement {
     if (isComponentClass(e))
-        return new e(props).render()
+        return renderClass(e, props)
 
     if (isStatelessComponent(e))
         return e(props)
@@ -52,6 +59,21 @@ export function createElement<T>(e: NodeElement<T>, props: T = null, ...children
     return null
 }
 
-export function render<T extends Node>(element: any, root: T) {
-    root.appendChild(element)
+let rootReactElement: Component<any, any> | HTMLElement
+let rootDOMElement: HTMLDivElement
+
+export function render(element: Component<any, any> | HTMLElement, root: HTMLDivElement) {
+    rootReactElement = element
+    let currentDOM: HTMLElement
+    if ((element as any).render)
+        currentDOM = (element as any).render()
+    else
+        currentDOM = element as HTMLElement
+    rootDOMElement = root
+    rootDOMElement.appendChild(currentDOM)
+}
+
+function refresh() {
+    rootDOMElement.innerHTML = ''
+    render(rootReactElement, rootDOMElement)
 }
