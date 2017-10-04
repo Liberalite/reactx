@@ -11,15 +11,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/assert": "0.0.31",
-    "@types/jsdom": "^11.0.2",
-    "jsdom": "^11.3.0",
     "typescript": "^2.5.3"
   },
   "devDependencies": {
     "@types/jest": "^21.1.2",
+    "@types/assert": "0.0.31",
+    "@types/jsdom": "^11.0.2",
     "jest": "^21.2.1",
-    "ts-jest": "^21.0.1"
+    "ts-jest": "^21.0.1",
+    "jsdom": "^11.3.0"
   },
   "jest": {
     "transform": {

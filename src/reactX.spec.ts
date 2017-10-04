@@ -6,9 +6,10 @@ describe("reactX", () => {
     const HELLO = "Hello"
     const WORLD = "world"
     let root: HTMLDivElement
+    let document: Document
 
     beforeEach(() => {
-        const document = new JSDOM('<!DOCTYPE html><body><div></div></body></html>').window.document
+        document = new JSDOM('<!DOCTYPE html><body><div></div></body></html>').window.document
         setRenderTarget(document)
         root = document.body.querySelector('div')
     })
@@ -70,5 +71,19 @@ describe("reactX", () => {
         const hello = createElement(Hey, { name: 'Joe' })
         render(hello, root)
         expect(root.innerHTML).toEqual(`<b>hey Joe!</b>`)
+    })
+
+    it('binds on props as Events to html tag', () => {
+        let evt = document.createEvent("HTMLEvents")
+        evt.initEvent("click", false, true)
+        const onClick = jest.fn()
+        render(createElement('b', { onClick }), root)
+        document.body.querySelector('b').dispatchEvent(evt)
+        expect(onClick).toBeCalled()
+    })
+
+    it('binds attributes to html tag', () => {
+        render(createElement('a', { href: "/" }, "home"), root)
+        expect(root.innerHTML).toEqual(`<a href="/">home</a>`)
     })
 })
