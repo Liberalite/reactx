@@ -1,14 +1,15 @@
-interface Constructable<T> {
-    new(): T
+interface Constructable<T, TProps> {
+    new(props: TProps): T
+
 }
 
 type StatelessComponent<T> = (props: T) => HTMLElement
 
-interface Component {
+interface IClassComponent {
     render: () => HTMLElement
 }
 
-type NodeElement<T> = string | Constructable<Component> | StatelessComponent<T>
+type NodeElement<T> = string | Constructable<IClassComponent, T> | StatelessComponent<T>
 
 type Children = (string | HTMLElement)[]
 

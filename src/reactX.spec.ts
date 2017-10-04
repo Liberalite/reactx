@@ -1,5 +1,6 @@
-import { JSDOM } from 'jsdom'
-import { setRenderTarget, createElement, render } from './reactx'
+import { JSDOM } from 'jsdom';
+
+import { Component, createElement, render, setRenderTarget } from './reactx';
 
 describe("reactX", () => {
     const HELLO = "Hello"
@@ -45,12 +46,11 @@ describe("reactX", () => {
         }
     }
 
-    it("renders html and stateless child components", () => {
+    it("renders class Component", () => {
         const wrapper = createElement(Hello)
         render(wrapper, root)
         expect(root.innerHTML).toEqual(`<div>${HELLO}</div>`)
     })
-
 
     it("renders stateless component with props", () => {
         const HelloComponent = (props: { firstname: string, lastname: string }) =>
@@ -58,5 +58,17 @@ describe("reactX", () => {
         const hello = createElement(HelloComponent, { firstname: 'Edsger', lastname: 'Dijkstra' })
         render(hello, root)
         expect(root.innerHTML).toEqual(`<b>${HELLO} Edsger Dijkstra!</b>`)
+    })
+
+    class Hey extends Component<{ name: string }> {
+        render(): HTMLElement {
+            return createElement('b', null, `hey ${this.props.name}!`)
+        }
+    }
+
+    it("renders class Component with props", () => {
+        const hello = createElement(Hey, { name: 'Joe' })
+        render(hello, root)
+        expect(root.innerHTML).toEqual(`<b>hey Joe!</b>`)
     })
 })
