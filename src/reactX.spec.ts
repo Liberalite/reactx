@@ -50,4 +50,13 @@ describe("reactX", () => {
         render(wrapper, root)
         expect(root.innerHTML).toEqual(`<div>${HELLO}</div>`)
     })
+
+
+    it("renders stateless component with props", () => {
+        const HelloComponent = (props: { firstname: string, lastname: string }) =>
+            createElement('b', null, `${HELLO} ${props.firstname} ${props.lastname}!`)
+        const hello = createElement(HelloComponent, { firstname: 'Edsger', lastname: 'Dijkstra' })
+        render(hello, root)
+        expect(root.innerHTML).toEqual(`<b>${HELLO} Edsger Dijkstra!</b>`)
+    })
 })
