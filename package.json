@@ -1,0 +1,46 @@
+{
+  "name": "react-tplx",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "lint": "tslint --project tsconfig.json --format stylish",
+    "clean": "rm -rf dist/*",
+    "test": "npm run clean; ./node_modules/.bin/tsc && npm run lint && ./node_modules/.bin/jest"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/assert": "0.0.31",
+    "@types/jsdom": "^11.0.2",
+    "jsdom": "^11.3.0",
+    "typescript": "^2.5.3"
+  },
+  "devDependencies": {
+    "@types/jest": "^21.1.2",
+    "jest": "^21.2.1",
+    "ts-jest": "^21.0.1"
+  },
+  "jest": {
+    "transform": {
+      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "unmockedModulePathPatterns": [
+      "react",
+      "enzyme",
+      "jasmine-enzyme"
+    ],
+    "moduleDirectories": [
+      "node_modules",
+      "src"
+    ],
+    "moduleNameMapper": {
+      "@/(.*)": "<rootDir>/src/$1"
+    }
+  }
+}
