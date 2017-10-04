@@ -1,9 +1,5 @@
 let document: Document = window.document
-export const setDocument = (d: Document) => document = d
-
-type Component<T> = (props: T) => HTMLElement
-type Element<T> = string | Component<T>
-type Children = (string | HTMLElement)[]
+export const setRenderTarget = (d: Document) => document = d
 
 function createTagElement<T>(tag: string, children: Children) {
     const domElement = document.createElement(tag)
@@ -16,20 +12,22 @@ function createTagElement<T>(tag: string, children: Children) {
     return domElement
 }
 
-function createElement<T = void>(e: Element<T>, props: T = null, ...children: Children): HTMLElement {
+function isComponentClass(e: any): e is Component & Constructable<Component> {
+    return !!e.prototype && !!e.prototype.constructor.name && !!e.prototype.render
+}
+
+export function createElement<T>(e: NodeElement<T>, props: T = null, ...children: Children): HTMLElement {
+    if (isComponentClass(e))
+        return new e().render()
+
     if (typeof e === 'function')
-        return e(props)
-    return createTagElement(e, children)
+        return (e as StatelessComponent<T>)(props)
+
+    if (typeof e === 'string')
+        return createTagElement(e, children)
+    return null
 }
 
-export const Reactx = {
-    createElement
-}
-
-function render<T extends Node>(element: any, root: T) {
+export function render<T extends Node>(element: any, root: T) {
     root.appendChild(element)
-}
-
-export const ReactxDOM = {
-    render
 }
