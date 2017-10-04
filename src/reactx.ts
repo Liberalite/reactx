@@ -3,28 +3,40 @@ import { isComponentClass, isStatelessComponent, toDashCase } from './utils';
 let document: Document
 export const setRenderTarget = (d: Document) => document = d
 
-export abstract class Component<TProps = void, TState = void> implements IClassComponent {
+export class Component<TProps = void, TState = void> implements IClassComponent {
     constructor(public props?: TProps) { }
+    public state?: TState = {} as any
     render(): HTMLElement { return null }
+    setState(state: TState) {
+        this.state = { ...(this.state as any), state }
+    }
 }
 
-function createTagElement<T>(tag: string, props: T, children: Children) {
-    const domElement = document.createElement(tag)
-    children.forEach(child => {
+function appendChildren(domElement: HTMLElement, children: Children) {
+    (children || []).forEach(child => {
         if (typeof child === 'string')
             domElement.innerHTML += child
         else
             domElement.appendChild(child)
     })
-    if (!props) {
-        Object.keys(props).forEach(propName => {
-            if (/^on.*$/.test(propName))
-                domElement.addEventListener(propName.substring(2).toLowerCase(), (props as any)[propName]);
-            else
-                domElement.setAttribute(toDashCase(propName), (props as any)[propName]);
-        })
-    }
+}
 
+function appendProp(domElement: HTMLElement, propName: string, value: any) {
+    if (/^on.*$/.test(propName))
+        domElement.addEventListener(propName.substring(2).toLowerCase(), value);
+    else
+        domElement.setAttribute(toDashCase(propName), value);
+}
+
+function appendProps<T>(domElement: HTMLElement, props: T) {
+    Object.keys(props || {}).forEach(propName =>
+        appendProp(domElement, propName, (props as any)[propName]))
+}
+
+function createTagElement<T>(tag: string, props: T, children: Children) {
+    const domElement = document.createElement(tag)
+    appendChildren(domElement, children)
+    appendProps(domElement, props)
     return domElement
 }
 

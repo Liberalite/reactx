@@ -41,7 +41,7 @@ describe("reactX", () => {
         expect(root.innerHTML).toEqual(`<section><div>${HELLO}</div><span>${WORLD}</span></section>`)
     })
 
-    class Hello implements Component {
+    class Hello extends Component {
         render(): HTMLElement {
             return createElement('div', null, HELLO)
         }
@@ -85,5 +85,22 @@ describe("reactX", () => {
     it('binds attributes to html tag', () => {
         render(createElement('a', { href: "/" }, "home"), root)
         expect(root.innerHTML).toEqual(`<a href="/">home</a>`)
+    })
+
+    class OpenClose extends Component<{ name: string }, { isOpen: boolean }> {
+        toggle() {
+            this.setState({ isOpen: !this.state.isOpen })
+        }
+        render(): HTMLElement {
+            return createElement('b', { 'onClick': () => this.toggle() }, this.state.isOpen ? 'open' : 'closed')
+        }
+    }
+
+    it('binds on props as Events to html tag', () => {
+        let evt = document.createEvent("HTMLEvents")
+        evt.initEvent("click", false, true)
+        render(createElement(OpenClose), root)
+        document.body.querySelector('b').dispatchEvent(evt)
+        expect(root.innerHTML).toEqual(`<b>open</b>`)
     })
 })
