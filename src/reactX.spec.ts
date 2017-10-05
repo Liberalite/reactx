@@ -74,9 +74,17 @@ describe("reactX", () => {
     }
 
     it("renders class Component with props", () => {
-        const hello = createElement(Hey, { name: 'Joe' })
-        render(hello, root)
+        render(createElement(Hey, { name: 'Joe' }), root)
         expect(root.innerHTML).toEqual(`<b>hey Joe!</b>`)
+    })
+    class PapaJoe extends Component {
+        render() {
+            return createElement('b', null, "My kids:", ...this.children)
+        }
+    }
+    it("renders class Component with children", () => {
+        render(createElement(PapaJoe, null, " albert", " joe"), root)
+        expect(root.innerHTML).toEqual(`<b>My kids: albert joe</b>`)
     })
 
     it('binds on props as Events to html tag', () => {

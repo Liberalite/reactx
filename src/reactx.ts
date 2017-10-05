@@ -1,4 +1,4 @@
-import { isComponentClassConstructor, isStatelessComponent, toDashCase, isComponentClass } from './utils';
+import { isComponentClassConstructor, isStatelessComponent, toDashCase, isComponentClass } from './utils'
 
 let DOC: Document = document
 export const setRenderTarget = (d: Document) => DOC = d
@@ -11,6 +11,7 @@ export abstract class Component<TProps = void, TState = void> implements IClassC
             if (typeof (that[fname]) === "function")
                 that[fname] = that[fname].bind(that)
     }
+    children: ReactChildren = null
     public state?: TState = {} as any
     render(): ReactElement { return null }
     setState(state: TState) {
@@ -20,8 +21,8 @@ export abstract class Component<TProps = void, TState = void> implements IClassC
 }
 
 function appendProp(domElement: HTMLElement, propName: string, value: any) {
-    if (/^on.*$/.test(propName))
-        domElement.addEventListener(propName.substring(2).toLowerCase(), value);
+    if (/^on.+$/.test(propName))
+        domElement.addEventListener(propName.substring(2).toLowerCase(), value)
     else
         domElement.setAttribute(toDashCase(propName), value);
 }
@@ -31,7 +32,7 @@ function appendProps<T>(domElement: HTMLElement, props: T) {
         appendProp(domElement, propName, (props as any)[propName]))
 }
 
-function appendChild(domElement: HTMLElement, child: ReactElement | string | (ReactElement | string)[]) {
+function appendChild(domElement: HTMLElement, child: ReactChild | ReactChild[]) {
     if (Array.isArray(child))
         child.forEach(c => appendChild(domElement, c))
     else if (typeof child === 'string')
@@ -42,26 +43,27 @@ function appendChild(domElement: HTMLElement, child: ReactElement | string | (Re
         domElement.appendChild(child)
 }
 
-function appendChildren(domElement: HTMLElement, children: ReactChildren[]) {
+function appendChildren(domElement: HTMLElement, children: ReactChildren) {
     (children || []).forEach(child => appendChild(domElement, child))
 }
 
-function createTagElement<T>(tag: string, props: T, children: ReactChildren[]) {
+function createTagElement<T>(tag: string, props: T, children: ReactChildren) {
     const domElement = DOC.createElement(tag)
     appendChildren(domElement, children)
     appendProps(domElement, props)
     return domElement
 }
 
-function createClass<T>(e: Constructable<IClassComponent, T>, props: T, ...children: ReactChildren[]) {
+function createClass<T>(e: Constructable<IClassComponent, T>, props: T, ...children: ReactChildren) {
     const el = new e(props)
     el.children = children
     return el
 }
 
-export function createElement<T>(e: Constructors<T>, props: T = null, ...children: ReactChildren[]): ReactElement {
+export function createElement<T>(e: ReactComponentConstructor<T>,
+    props: T = null, ...children: ReactChildren): ReactElement {
     if (isComponentClassConstructor(e))
-        return createClass(e, props)
+        return createClass(e, props, ...children)
 
     if (isStatelessComponent(e))
         return e(props)
