@@ -19,7 +19,7 @@
             "es2015"
         ]
     },
-    "allowJS": true,
+    "allowJS": false,
     "include": [
         "src/**/*.d.ts",
         "src/**/*.tsx",

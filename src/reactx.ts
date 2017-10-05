@@ -1,25 +1,22 @@
-import { isComponentClass, isStatelessComponent, toDashCase } from './utils';
+import { isComponentClassConstructor, isStatelessComponent, toDashCase, isComponentClass } from './utils';
 
-let document: Document
-export const setRenderTarget = (d: Document) => document = d
+let DOC: Document = document
+export const setRenderTarget = (d: Document) => DOC = d
 
-export class Component<TProps = void, TState = void> implements IClassComponent {
-    constructor(public props?: TProps) { }
+export abstract class Component<TProps = void, TState = void> implements IClassComponent {
+    constructor(public props?: TProps) {
+        const that = this as any
+        // to enable 'eta reduction' in tsx
+        for (let fname in this)
+            if (typeof (that[fname]) === "function")
+                that[fname] = that[fname].bind(that)
+    }
     public state?: TState = {} as any
-    render(): HTMLElement { return null }
+    render(): ReactElement { return null }
     setState(state: TState) {
         this.state = { ...(this.state as any), ...(state as any) }
         refresh()
     }
-}
-
-function appendChildren(domElement: HTMLElement, children: Children) {
-    (children || []).forEach(child => {
-        if (typeof child === 'string')
-            domElement.innerHTML += child
-        else
-            domElement.appendChild(child)
-    })
 }
 
 function appendProp(domElement: HTMLElement, propName: string, value: any) {
@@ -34,22 +31,37 @@ function appendProps<T>(domElement: HTMLElement, props: T) {
         appendProp(domElement, propName, (props as any)[propName]))
 }
 
-function createTagElement<T>(tag: string, props: T, children: Children) {
-    const domElement = document.createElement(tag)
+function appendChild(domElement: HTMLElement, child: ReactElement | string | (ReactElement | string)[]) {
+    if (Array.isArray(child))
+        child.forEach(c => appendChild(domElement, c))
+    else if (typeof child === 'string')
+        domElement.innerHTML += child
+    else if (isComponentClass(child))
+        domElement.appendChild(flatten(child))
+    else
+        domElement.appendChild(child)
+}
+
+function appendChildren(domElement: HTMLElement, children: ReactChildren[]) {
+    (children || []).forEach(child => appendChild(domElement, child))
+}
+
+function createTagElement<T>(tag: string, props: T, children: ReactChildren[]) {
+    const domElement = DOC.createElement(tag)
     appendChildren(domElement, children)
     appendProps(domElement, props)
     return domElement
 }
-const REACT_CLASS = "reactClass"
-function renderClass<T>(e: Constructable<IClassComponent, T>, props: T, ...children: Children) {
-    const el = new e(props).render()
-    el.kids = children
-    el.type = REACT_CLASS
+
+function createClass<T>(e: Constructable<IClassComponent, T>, props: T, ...children: ReactChildren[]) {
+    const el = new e(props)
+    el.children = children
     return el
 }
-export function createElement<T>(e: NodeElement<T>, props: T = null, ...children: Children): HTMLElement {
-    if (isComponentClass(e))
-        return renderClass(e, props)
+
+export function createElement<T>(e: Constructors<T>, props: T = null, ...children: ReactChildren[]): ReactElement {
+    if (isComponentClassConstructor(e))
+        return createClass(e, props)
 
     if (isStatelessComponent(e))
         return e(props)
@@ -59,21 +71,22 @@ export function createElement<T>(e: NodeElement<T>, props: T = null, ...children
     return null
 }
 
-let rootReactElement: Component<any, any> | HTMLElement
-let rootDOMElement: HTMLDivElement
+let reactSrc: ReactElement
+let htmlDest: HTMLElement
 
-export function render(element: Component<any, any> | HTMLElement, root: HTMLDivElement) {
-    rootReactElement = element
-    let currentDOM: HTMLElement
-    if ((element as any).render)
-        currentDOM = (element as any).render()
-    else
-        currentDOM = element as HTMLElement
-    rootDOMElement = root
-    rootDOMElement.appendChild(currentDOM)
+function flatten(src: ReactElement): HTMLElement {
+    if (isComponentClass(src))
+        return flatten(src.render())
+    return src
+}
+
+export function render(src: ReactElement, dest: HTMLElement) {
+    reactSrc = src
+    htmlDest = dest
+    htmlDest.appendChild(flatten(src))
 }
 
 function refresh() {
-    rootDOMElement.innerHTML = ''
-    render(rootReactElement, rootDOMElement)
+    htmlDest.innerHTML = ''
+    render(reactSrc, htmlDest)
 }

@@ -26,7 +26,13 @@ describe("reactX", () => {
         expect(root.innerHTML).toEqual(`<div>${HELLO} ${WORLD}</div>`)
     })
 
-    const HelloComponent = () => createElement('div', null, HELLO)
+    it("renders several nasted children in html tag", () => {
+        const div = createElement('div', null, [HELLO, " ", WORLD])
+        render(div, root)
+        expect(root.innerHTML).toEqual(`<div>${HELLO} ${WORLD}</div>`)
+    })
+
+    const HelloComponent: StatelessComponent = () => (createElement('div', null, HELLO) as HTMLElement)
     it("renders stateless component", () => {
         const hello = createElement(HelloComponent)
         render(hello, root)
@@ -42,7 +48,7 @@ describe("reactX", () => {
     })
 
     class Hello extends Component {
-        render(): HTMLElement {
+        render() {
             return createElement('div', null, HELLO)
         }
     }
@@ -62,7 +68,7 @@ describe("reactX", () => {
     })
 
     class Hey extends Component<{ name: string }> {
-        render(): HTMLElement {
+        render() {
             return createElement('b', null, `hey ${this.props.name}!`)
         }
     }
@@ -97,7 +103,7 @@ describe("reactX", () => {
             this.setState({ isOpen: !this.state.isOpen })
         }
 
-        render(): HTMLElement {
+        render() {
             return createElement('b', { 'onClick': () => this.toggle() }, this.state.isOpen ? 'open' : 'closed')
         }
     }
@@ -109,5 +115,7 @@ describe("reactX", () => {
         expect(root.innerHTML).toMatch(`<b>closed</b>`)
         document.body.querySelector('b').dispatchEvent(evt)
         expect(root.innerHTML).toMatch(`<b>open</b>`)
+        document.body.querySelector('b').dispatchEvent(evt)
+        expect(root.innerHTML).toMatch(`<b>closed</b>`)
     })
 })

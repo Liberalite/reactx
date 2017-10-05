@@ -1,4 +1,4 @@
-import { isComponentClass, isStatelessComponent, toDashCase } from './utils';
+import { isComponentClassConstructor, isStatelessComponent, toDashCase, isComponentClass } from './utils';
 
 describe("utils", () => {
     it("toDashCase", () => {
@@ -12,10 +12,16 @@ describe("utils", () => {
         expect(isStatelessComponent("")).toBeFalsy()
     })
 
+    class NotComponent { }
+    class Good { render() { return "" } }
+
+    it('isComponentClassConstructor', () => {
+        expect(isComponentClassConstructor(NotComponent)).toBeFalsy()
+        expect(isComponentClassConstructor(Good)).toBeTruthy()
+    })
+
     it('isComponentClass', () => {
-        class NotComponent { }
-        expect(isComponentClass(NotComponent)).toBeFalsy()
-        class Good { render() { return "" } }
-        expect(isComponentClass(Good)).toBeTruthy()
+        expect(isComponentClass(new NotComponent())).toBeFalsy()
+        expect(isComponentClass(new Good())).toBeTruthy()
     })
 })
