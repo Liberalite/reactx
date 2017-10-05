@@ -5,6 +5,7 @@ export function toDashCase(attr: string) {
 export function isComponentClass<T>(e: any): e is IClassComponent {
     return typeof e === "object" && !!e.render
 }
+
 export function isComponentClassConstructor<T>(e: any): e is IClassComponent & Constructable<IClassComponent, T> {
     return !!e.prototype && !!e.prototype.constructor.name && !!e.prototype.render
 }

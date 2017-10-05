@@ -87,6 +87,12 @@ describe("reactX", () => {
         expect(root.innerHTML).toEqual(`<b>My kids: albert joe</b>`)
     })
 
+    it("renders nested class Components", () => {
+        const wrapper = createElement(PapaJoe, null, new Hello, new Hello)
+        render(wrapper, root)
+        expect(root.innerHTML).toEqual(`<b>My kids:<div>${HELLO}</div><div>${HELLO}</div></b>`)
+    })
+
     it('binds on props as Events to html tag', () => {
         let evt = document.createEvent("HTMLEvents")
         evt.initEvent("click", false, true)
@@ -126,4 +132,6 @@ describe("reactX", () => {
         document.body.querySelector('b').dispatchEvent(evt)
         expect(root.innerHTML).toMatch(`<b>closed</b>`)
     })
+
+
 })
